@@ -2,6 +2,18 @@
 
 This module contains a test harness that can be used to verify a given tracer's compliance and compatibility with the spec.
 
+## Getting started
+
+* Have a Go toolchain installed
+* Clone this repo to `$GOPATH/src/github.com/w3c/distributed-tracing/`;
+  * `mkdir -p $GOPATH/src/github.com/w3c/`
+  * `cd $GOPATH/src/github.com/w3c/`
+  * `git clone git@github.com:yurishkuro/distributed-tracing.git`
+  * `cd distributed-tracing`
+  * `git checkout compliance-tests`
+  * `cd tests`
+* `go test -v ./tests`
+
 ## Test Components
 
 ### Orchestrator
