@@ -11,7 +11,6 @@ This module contains a test harness that can be used to verify a given tracer's 
   * `git clone git@github.com:yurishkuro/distributed-tracing.git`
   * `cd distributed-tracing`
   * `git checkout compliance-tests`
-  * `cd tests`
 * `go test -v ./tests`
 
 ## Test Components
