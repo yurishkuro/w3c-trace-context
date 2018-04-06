@@ -5,6 +5,7 @@ This module contains a test harness that can be used to verify a given tracer's 
 ## Getting started
 
 * Have a Go toolchain installed
+* `go get github.com/crossdock/crossdock-go` (a dependency)
 * Clone this repo to `$GOPATH/src/github.com/w3c/distributed-tracing/`;
   * `mkdir -p $GOPATH/src/github.com/w3c/`
   * `cd $GOPATH/src/github.com/w3c/`
