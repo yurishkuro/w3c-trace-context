@@ -1,4 +1,4 @@
-package tracer
+package reftracer
 
 import "github.com/w3c/distributed-tracing/tests/api"
 

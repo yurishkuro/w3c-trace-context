@@ -8,13 +8,13 @@ import (
 	"github.com/w3c/distributed-tracing/tests/actor"
 	"github.com/w3c/distributed-tracing/tests/driver"
 	driverParams "github.com/w3c/distributed-tracing/tests/driver/params"
-	"github.com/w3c/distributed-tracing/tests/internal/tracer"
+	"github.com/w3c/distributed-tracing/tests/internal/reftracer"
 )
 
 const clientURL = "http://127.0.0.1:8080"
 
 func TestCrossdock(t *testing.T) {
-	actor := actor.New(tracer.New())
+	actor := actor.New(reftracer.New())
 	actor.Start()
 	defer actor.Stop()
 	go driver.Start()
