@@ -7,15 +7,31 @@ import (
 )
 
 const (
-	Actor1    = "actor1"
-	Actor2    = "actor2"
-	Sampled   = "sampled"
-	BitLength = "bit_length"
+	// Actor parameter defines the name of the Node that implements the actor under test.
+	Actor = "actor"
 
-	// Server is used as an override for the location of the actor
+	// RefActor is the name of the reference implementation of the actor.
+	RefActor = "ref"
+
+	// Actor1    = "actor1"
+	// Actor2    = "actor2"
+	// Sampled   = "sampled"
+	// BitLength = "bit_length"
+
+	// Server parameter is used as an override for the location of the actor.
 	Server = "server"
+
+	// BehaviorMalformedTraceContext tests how actor reacts to malformed trace context.
+	BehaviorMalformedTraceContext = "malformed-trace-context"
+
+	BehaviorNoTraceContext = "no-trace-context"
+
+	BehaviorTraceContextSameVendor = "trace-context-same-vendor"
+
+	BehaviorTraceContextDiffVendor = "trace-context-diff-vendor"
 )
 
+// GetBool returns the value of a boolean parameter, or fails if parameter not present.
 func GetBool(t crossdock.T, name string) bool {
 	fatals := crossdock.Fatals(t)
 

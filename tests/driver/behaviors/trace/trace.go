@@ -17,10 +17,8 @@ import (
 const TraceParentVersion = "00"
 
 type behaviorParams struct {
-	actor1  string
-	actor2  string
-	server  string
-	sampled bool
+	actor  string
+	server string
 }
 
 // Trace implements the 'trace' behavior.
@@ -31,16 +29,13 @@ func Trace(t crossdock.T) {
 
 	traceID := random.New64BitID() + random.New64BitID()
 	spanID := random.New64BitID()
-	flags := "00"
-	if bp.sampled {
-		flags = "01"
-	}
+	flags := "01"
 	tc := api.TraceContext{
 		TraceParent: fmt.Sprintf("%s-%s-%s-%s", TraceParentVersion, traceID, spanID, flags),
 		TraceState:  "vnd1=abcd,vnd2=xyz",
 	}
 
-	server := bp.actor1
+	server := bp.actor
 	if bp.server != "" {
 		server = bp.server
 	}
@@ -52,8 +47,9 @@ func Trace(t crossdock.T) {
 		url,
 		tc.ToRequest,
 		&api.Request{
-			Downstream: &api.DownstreamRequest{
-				Actor: bp.actor2,
+			Actor: bp.actor,
+			Downstream: &api.Request{
+				Actor: params.RefActor,
 			},
 		},
 		&res,
@@ -67,14 +63,14 @@ func Trace(t crossdock.T) {
 	assert.Equal(traceID, res.Trace.TraceID)
 	assert.NotEmpty(res.Trace.SpanID)
 	assert.Equal(spanID, res.Trace.ParentSpanID)
-	assert.Equal(bp.sampled, res.Trace.Sampled)
+	assert.Equal(true, res.Trace.Sampled)
 	assert.Equal(tc.TraceParent, res.Trace.TraceParent)
 	assert.Equal(tc.TraceState, res.Trace.TraceState)
 
 	fatals.NotNil(res.Downstream)
 	assert.Equal(traceID, res.Downstream.Trace.TraceID)
 	assert.Equal(res.Trace.SpanID, res.Downstream.Trace.ParentSpanID)
-	assert.Equal(bp.sampled, res.Downstream.Trace.Sampled)
+	assert.Equal(true, res.Downstream.Trace.Sampled)
 	assert.Equal(tc.TraceState, res.Downstream.Trace.TraceState)
 }
 
@@ -82,13 +78,9 @@ func readParams(t crossdock.T) behaviorParams {
 	fatals := crossdock.Fatals(t)
 
 	b := behaviorParams{
-		actor1:  t.Param(params.Actor1),
-		actor2:  t.Param(params.Actor2),
-		sampled: params.GetBool(t, params.Sampled),
-		server:  t.Param(params.Server),
+		actor:  t.Param(params.Actor),
+		server: t.Param(params.Server),
 	}
-	fatals.NotEmpty(b.actor1, "actor1 cannot be empty")
-	fatals.NotEmpty(b.actor1, "actor2 cannot be empty")
-
+	fatals.NotEmpty(b.actor, "actor cannot be empty")
 	return b
 }

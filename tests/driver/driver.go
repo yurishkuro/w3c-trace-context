@@ -7,10 +7,14 @@ import (
 	"github.com/crossdock/crossdock-go"
 
 	"github.com/w3c/distributed-tracing/tests/driver/behaviors/trace"
+	"github.com/w3c/distributed-tracing/tests/driver/params"
 )
 
 var behaviors = crossdock.Behaviors{
-	"trace": trace.Trace,
+	params.BehaviorMalformedTraceContext:  trace.Trace,
+	params.BehaviorNoTraceContext:         trace.Trace,
+	params.BehaviorTraceContextSameVendor: trace.Trace,
+	params.BehaviorTraceContextDiffVendor: trace.Trace,
 }
 
 // Start registers behaviors and begins the Crossdock test driver.

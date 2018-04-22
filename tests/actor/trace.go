@@ -48,7 +48,7 @@ func (a *Actor) Trace(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func (a *Actor) CallDownstream(dn *api.DownstreamRequest, span api.Span) (*api.Response, error) {
+func (a *Actor) CallDownstream(dn *api.Request, span api.Span) (*api.Response, error) {
 	if dn.Actor == "" {
 		return nil, fmt.Errorf("no actor name")
 	}

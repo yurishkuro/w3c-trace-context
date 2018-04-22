@@ -1,4 +1,4 @@
-# Compatibility Tests
+# Compatibility Test-bed
 
 This module contains a test harness that can be used to verify a given tracer's compliance and compatibility with the spec.
 
@@ -14,7 +14,7 @@ This module contains a test harness that can be used to verify a given tracer's 
   * `git checkout compliance-tests`
 * `go test -v ./tests`
 
-## Test Components
+## Test-bed Components
 
 ### Orchestrator
 
@@ -67,6 +67,35 @@ When executing this test, the driver
 * If request contains an instruction to call another actor, the first actor executes it and embeds the other actor's response into its own response
 
 ## TODO
+
+### Dimensions of the individual tests
+  * permutations of the inbound trace context
+    * malformed trace context (many variations)
+    * sampled or unsampled
+    * different versions (in the future)
+    * inbound trace context by different vendor
+    * inbound trace context by the same vendor (requires 2 actor hops + validation)
+  * participation mode of the Node
+    * trust
+    * no trust - different vendor
+    * no trust - same vendor
+  * sampling - how does the Node decide on sampling given
+    * no inbound trace context
+    * malformed trace context
+    * unsampled trace context
+      * Node keeps no sampling
+      * Node up-samples
+
+Node parameters:
+  * TRUST_TRACE_ID = true/false
+  * TRUST_SAMPLING = true/false
+  * SAMPLE = true/false (when no inbound trace context)
+  * UPSAMPLE = true/false (when inbound trace context is not sampled)
+
+How does the driver know about Node's parameters?
+  * Make the Node return them in the response
+  * Pass parameters to the driver (requires too many compose files)
+
 
 * Use a real tracer that supports Trace Context semantics to implement the `api.Trace` and create another actor
 * Define docker-compose file that can pull different types of actors into one test suite

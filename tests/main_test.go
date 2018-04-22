@@ -7,6 +7,7 @@ import (
 	crossdock "github.com/crossdock/crossdock-go"
 	"github.com/w3c/distributed-tracing/tests/actor"
 	"github.com/w3c/distributed-tracing/tests/driver"
+	driverParams "github.com/w3c/distributed-tracing/tests/driver/params"
 	"github.com/w3c/distributed-tracing/tests/internal/tracer"
 )
 
@@ -31,42 +32,61 @@ func TestCrossdock(t *testing.T) {
 		axes   axes
 	}{
 		{
-			name: "trace",
+			name: driverParams.BehaviorMalformedTraceContext,
 			axes: axes{
-				"actor1": []string{"ref", "ref"},
-				"actor2": []string{"ref", "ref"},
+				"actor": []string{driverParams.RefActor},
 			},
-			params: params{
-				"sampled":    "true",
-				"bit_length": "128",
+			params: params{},
+		},
+		{
+			name: driverParams.BehaviorNoTraceContext,
+			axes: axes{
+				"actor": []string{driverParams.RefActor},
 			},
+			params: params{},
+		},
+		{
+			name: driverParams.BehaviorTraceContextSameVendor,
+			axes: axes{
+				"actor": []string{driverParams.RefActor},
+			},
+			params: params{},
+		},
+		{
+			name: driverParams.BehaviorTraceContextDiffVendor,
+			axes: axes{
+				"actor": []string{driverParams.RefActor},
+			},
+			params: params{},
 		},
 	}
 
 	for _, bb := range behaviors {
-		args := url.Values{}
-		for k, v := range defaultParams {
-			args.Set(k, v)
-		}
-		for k, v := range bb.params {
-			args.Set(k, v)
-		}
-
-		if len(bb.axes) == 0 {
-			crossdock.Call(t, clientURL, bb.name, args)
-			continue
-		}
-
-		for _, entry := range crossdock.Combinations(bb.axes) {
-			entryArgs := url.Values{}
-			for k := range args {
-				entryArgs.Set(k, args.Get(k))
+		t.Run(bb.name, func(t *testing.T) {
+			args := url.Values{}
+			for k, v := range defaultParams {
+				args.Set(k, v)
 			}
-			for k, v := range entry {
-				entryArgs.Set(k, v)
+			for k, v := range bb.params {
+				args.Set(k, v)
 			}
 
-			crossdock.Call(t, clientURL, bb.name, entryArgs)
-		}
+			if len(bb.axes) == 0 {
+				crossdock.Call(t, clientURL, bb.name, args)
+				return
+			}
+
+			for _, entry := range crossdock.Combinations(bb.axes) {
+				entryArgs := url.Values{}
+				for k := range args {
+					entryArgs.Set(k, args.Get(k))
+				}
+				for k, v := range entry {
+					entryArgs.Set(k, v)
+				}
+
+				crossdock.Call(t, clientURL, bb.name, entryArgs)
+			}
+		})
 	}
 }
