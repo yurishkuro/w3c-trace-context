@@ -6,15 +6,18 @@ import (
 
 	"github.com/crossdock/crossdock-go"
 
-	"github.com/w3c/distributed-tracing/tests/driver/behaviors/trace"
+	"github.com/w3c/distributed-tracing/tests/driver/behaviors/diffvendor"
+	"github.com/w3c/distributed-tracing/tests/driver/behaviors/malformed"
+	"github.com/w3c/distributed-tracing/tests/driver/behaviors/missing"
+	"github.com/w3c/distributed-tracing/tests/driver/behaviors/samevendor"
 	"github.com/w3c/distributed-tracing/tests/driver/params"
 )
 
 var behaviors = crossdock.Behaviors{
-	params.BehaviorMalformedTraceContext:  trace.Trace,
-	params.BehaviorNoTraceContext:         trace.Trace,
-	params.BehaviorTraceContextSameVendor: trace.Trace,
-	params.BehaviorTraceContextDiffVendor: trace.Trace,
+	params.BehaviorMalformedTraceContext:  malformed.Execute,
+	params.BehaviorMissingTraceContext:    missing.Execute,
+	params.BehaviorTraceContextSameVendor: samevendor.Execute,
+	params.BehaviorTraceContextDiffVendor: diffvendor.Execute,
 }
 
 // Start registers behaviors and begins the Crossdock test driver.

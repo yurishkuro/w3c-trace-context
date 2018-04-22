@@ -39,7 +39,7 @@ func TestCrossdock(t *testing.T) {
 			params: params{},
 		},
 		{
-			name: driverParams.BehaviorNoTraceContext,
+			name: driverParams.BehaviorMissingTraceContext,
 			axes: axes{
 				"actor": []string{driverParams.RefActor},
 			},

@@ -1,4 +1,4 @@
-package trace
+package diffvendor
 
 import (
 	"context"
@@ -21,8 +21,8 @@ type behaviorParams struct {
 	server string
 }
 
-// Trace implements the 'trace' behavior.
-func Trace(t crossdock.T) {
+// Execute implements the 'trace-context-diff-vendor' behavior.
+func Execute(t crossdock.T) {
 	fatals := crossdock.Fatals(t)
 	bp := readParams(t)
 	log.Printf("params %+v", bp)

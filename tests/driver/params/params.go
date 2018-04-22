@@ -13,18 +13,13 @@ const (
 	// RefActor is the name of the reference implementation of the actor.
 	RefActor = "ref"
 
-	// Actor1    = "actor1"
-	// Actor2    = "actor2"
-	// Sampled   = "sampled"
-	// BitLength = "bit_length"
-
 	// Server parameter is used as an override for the location of the actor.
 	Server = "server"
 
 	// BehaviorMalformedTraceContext tests how actor reacts to malformed trace context.
 	BehaviorMalformedTraceContext = "malformed-trace-context"
 
-	BehaviorNoTraceContext = "no-trace-context"
+	BehaviorMissingTraceContext = "missing-trace-context"
 
 	BehaviorTraceContextSameVendor = "trace-context-same-vendor"
 
