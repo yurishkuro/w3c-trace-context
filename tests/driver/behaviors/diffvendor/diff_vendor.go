@@ -54,13 +54,13 @@ func Execute(t crossdock.T) {
 		},
 		&res,
 	)
-	fatals.NoError(err, "failed to post JSON")
-
-	json, _ := json.Marshal(&res)
-	log.Printf("driver received response: %s", json)
+	if fatals.NoError(err, "failed to post JSON") {
+		json, _ := json.Marshal(&res)
+		log.Printf("driver received response: %s", json)
+	}
 
 	assert := crossdock.Assert(t)
-	assert.Equal(traceID, res.Trace.TraceID)
+	assert.Equal(traceID, res.Trace.TraceID, "same trace ID")
 	assert.NotEmpty(res.Trace.SpanID)
 	assert.Equal(spanID, res.Trace.ParentSpanID)
 	assert.Equal(true, res.Trace.Sampled)

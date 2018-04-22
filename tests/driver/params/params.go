@@ -17,13 +17,13 @@ const (
 	Server = "server"
 
 	// BehaviorMalformedTraceContext tests how actor reacts to malformed trace context.
-	BehaviorMalformedTraceContext = "malformed-trace-context"
+	BehaviorMalformedTraceContext = "malformed_trace_context"
 
-	BehaviorMissingTraceContext = "missing-trace-context"
+	BehaviorMissingTraceContext = "missing_trace_context"
 
-	BehaviorTraceContextSameVendor = "trace-context-same-vendor"
+	BehaviorTraceContextSameVendor = "trace_context_same_vendor"
 
-	BehaviorTraceContextDiffVendor = "trace-context-diff-vendor"
+	BehaviorTraceContextDiffVendor = "trace_context_diff_vendor"
 )
 
 // GetBool returns the value of a boolean parameter, or fails if parameter not present.

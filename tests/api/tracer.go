@@ -63,4 +63,6 @@ type Span interface {
 // Tracer is an abstraction of a vendor tracer.
 type Tracer interface {
 	StartSpan(traceContext TraceContext) Span
+
+	Configuration() TracerConfiguration
 }

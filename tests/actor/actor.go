@@ -11,6 +11,7 @@ import (
 
 // Actor implements an actor in the test suite, given a vendor-specific tracer
 type Actor struct {
+	name   string
 	server *http.Server
 	tracer api.Tracer
 }
@@ -18,6 +19,7 @@ type Actor struct {
 // New creates a new actor.
 func New(tracer api.Tracer) *Actor {
 	a := &Actor{
+		name:   tracer.Configuration().ActorName,
 		tracer: tracer,
 	}
 
@@ -30,9 +32,9 @@ func New(tracer api.Tracer) *Actor {
 
 // Start registers actor endpoints and starts the server(s).
 func (a *Actor) Start() {
-	log.Print("starting actor")
+	log.Printf("starting actor '%s'", a.name)
 	go a.serve()
-	log.Print("actor started")
+	log.Printf("actor '%s' started", a.name)
 }
 
 func (a *Actor) serve() {

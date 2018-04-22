@@ -11,26 +11,32 @@ import (
 	"github.com/w3c/distributed-tracing/tests/internal/xhttp"
 )
 
-// Trace implements actor's "trace" behavior.
+// Trace implements actor's "trace" endpoint.
 func (a *Actor) Trace(w http.ResponseWriter, r *http.Request) {
 	var req api.Request
 	xhttp.HandleJSON(w, r, &req, func(r *http.Request, in interface{}) (interface{}, error) {
-		jsonBytes, _ := json.Marshal(in)
+		jsonBytes, err := json.Marshal(in)
+		if err != nil {
+			return nil, fmt.Errorf("Failed to parse request as JSON: %v", err)
+		}
 		log.Printf("actor received request: %s", string(jsonBytes))
 
 		tc := api.TraceContextFromRequest(r)
-		log.Printf("received trce context: %+v", tc)
+		log.Printf("received trace context: %+v", tc)
 		span := a.tracer.StartSpan(tc)
 
 		var downstream *api.Response
 		if req.Downstream != nil {
-			d, err := a.CallDownstream(req.Downstream, span)
+			d, err := a.callDownstream(req.Downstream, span)
 			if err != nil {
 				return nil, err
 			}
 			downstream = d
 
-			jsonBytes, _ := json.Marshal(d)
+			jsonBytes, err := json.Marshal(d)
+			if err != nil {
+				return nil, fmt.Errorf("Failed to parse downstream response as JSON: %v", err)
+			}
 			log.Printf("downstream response: %s", string(jsonBytes))
 		}
 
@@ -48,7 +54,7 @@ func (a *Actor) Trace(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func (a *Actor) CallDownstream(dn *api.Request, span api.Span) (*api.Response, error) {
+func (a *Actor) callDownstream(dn *api.Request, span api.Span) (*api.Response, error) {
 	if dn.Actor == "" {
 		return nil, fmt.Errorf("no actor name")
 	}

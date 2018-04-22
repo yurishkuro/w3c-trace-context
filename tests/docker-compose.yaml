@@ -1,0 +1,40 @@
+version: '2'
+
+services:
+    crossdock:
+        image: crossdock/crossdock
+        links:
+            - driver
+            - refnode
+
+        environment:
+            - WAIT_FOR_TIMEOUT=2s
+            - CALL_TIMEOUT=2s
+
+            # For real tests add actual tracer implementations here.
+            - WAIT_FOR=driver,refnode
+
+            # For real tests add actual tracer implementations here.
+            - AXIS_ACTOR=refnode
+
+            # Behaviors are executed in alphabetical order, so keep them sorted here too.
+            - BEHAVIOR_MALFORMED_TRACE_CONTEXT=actor
+            - BEHAVIOR_MISSING_TRACE_CONTEXT=actor
+            - BEHAVIOR_TRACE_CONTEXT_DIFF_VENDOR=actor
+            - BEHAVIOR_TRACE_CONTEXT_SAME_VENDOR=actor
+
+    driver:
+        build: .
+        ports:
+            - "8080"
+
+    refnode:
+        build: .
+        ports:
+            - "8080-8081"
+        environment:
+            - ACTOR_NAME=refnode
+            - TRUST_TRACE_ID=true
+            - TRUST_SAMPLING=true
+            - SAMPLE=true
+            - UPSAMPLE=false

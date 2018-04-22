@@ -13,11 +13,10 @@ type Tracer struct {
 // New creates a new reference Tracer.
 func New() *Tracer {
 	config, err := TracerConfigFromEnv()
-	if err != ErrNoConfig {
-		panic(err.Error())
-	}
 	if err == ErrNoConfig {
 		config = DefaultTracerConfiguration
+	} else if err != nil {
+		panic(err.Error())
 	}
 	return NewWithConfig(config)
 }
@@ -29,6 +28,7 @@ func NewWithConfig(config api.TracerConfiguration) *Tracer {
 	}
 }
 
+// StartSpan implements Tracer API.
 func (t *Tracer) StartSpan(tc api.TraceContext) api.Span {
 	// TODO tc.TraceState should take priority
 	traceID, parentSpanID, sampled, err := tc.ParseTraceParent()
@@ -46,4 +46,9 @@ func (t *Tracer) StartSpan(tc api.TraceContext) api.Span {
 		sampled:       sampled,
 		traceState:    tc.TraceState,
 	}
+}
+
+// Configuration implements Tracer API.
+func (t *Tracer) Configuration() api.TracerConfiguration {
+	return t.config
 }

@@ -10,6 +10,7 @@ import (
 )
 
 const (
+	envActorName     = "ACTOR_NAME"
 	envTrustTraceID  = "TRUST_TRACE_ID"
 	envTrustSampling = "TRUST_SAMPLING"
 	envSample        = "SAMPLE"
@@ -22,11 +23,12 @@ var (
 
 	// ErrIncomplete is returned when some env variables were absent.
 	ErrIncomplete = fmt.Errorf("not all env variables are defined: %v", []string{
-		envTrustTraceID, envTrustSampling, envSample, envUpsample,
+		envActorName, envTrustTraceID, envTrustSampling, envSample, envUpsample,
 	})
 
 	// DefaultTracerConfiguration is the most common configuration.
 	DefaultTracerConfiguration = api.TracerConfiguration{
+		ActorName:     "undefined",
 		TrustTraceID:  true,
 		TrustSampling: true,
 		Sample:        true,
@@ -37,18 +39,20 @@ var (
 // TracerConfigFromEnv reads TracerConfiguration from environment variables.
 func TracerConfigFromEnv() (api.TracerConfiguration, error) {
 	var (
+		actorName     = os.Getenv(envActorName)
 		trustTraceID  = os.Getenv(envTrustTraceID)
 		trustSampling = os.Getenv(envTrustSampling)
 		sample        = os.Getenv(envSample)
 		upsample      = os.Getenv(envUpsample)
 	)
-	if trustTraceID == "" && trustSampling == "" && sample == "" && upsample == "" {
+	if actorName == "" && trustTraceID == "" && trustSampling == "" && sample == "" && upsample == "" {
 		return api.TracerConfiguration{}, ErrNoConfig
 	}
-	if trustTraceID == "" || trustSampling == "" || sample == "" || upsample == "" {
+	if actorName == "" || trustTraceID == "" || trustSampling == "" || sample == "" || upsample == "" {
 		return api.TracerConfiguration{}, ErrIncomplete
 	}
 	return api.TracerConfiguration{
+		ActorName:     actorName,
 		TrustTraceID:  toBool(trustTraceID),
 		TrustSampling: toBool(trustSampling),
 		Sample:        toBool(sample),
