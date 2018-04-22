@@ -13,31 +13,12 @@ import (
 type Actor struct {
 	server *http.Server
 	tracer api.Tracer
-	config api.ActorConfiguration
 }
 
 // New creates a new actor.
 func New(tracer api.Tracer) *Actor {
-	config, err := configFromEnv()
-	if err != errNoConfig {
-		panic(err.Error())
-	}
-	if err == errNoConfig {
-		config = api.ActorConfiguration{
-			TrustTraceID:  true,
-			TrustSampling: true,
-			Sample:        true,
-			Upsample:      false,
-		}
-	}
-	return NewWithConfig(tracer, config)
-}
-
-// NewWithConfig creates a new actor with given configuration.
-func NewWithConfig(tracer api.Tracer, config api.ActorConfiguration) *Actor {
 	a := &Actor{
 		tracer: tracer,
-		config: config,
 	}
 
 	m := http.NewServeMux()

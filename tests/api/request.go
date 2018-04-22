@@ -8,9 +8,9 @@ type Request struct {
 
 // Response is the response of the Node.
 type Response struct {
-	ActorConfig ActorConfiguration `json:"actorConfig"`
-	Trace       ObservedTrace      `json:"trace"`
-	Downstream  *Response          `json:"downstream,omitempty"`
+	TracerConfig TracerConfiguration `json:"tracer_config"`
+	Trace        ObservedTrace       `json:"trace"`
+	Downstream   *Response           `json:"downstream,omitempty"`
 }
 
 // ObservedTrace describes the trace that the node observed / recorded.
@@ -24,20 +24,20 @@ type ObservedTrace struct {
 	TraceState    string `json:"trace_state,omitempty"`
 }
 
-// ActorConfiguration describes how the actor is expected to behave under different conditions.
-type ActorConfiguration struct {
+// TracerConfiguration describes how the actor's tracer is going to behave under different conditions.
+type TracerConfiguration struct {
 	ActorName string
 
-	// TrustTraceID controls whether the actor respects inbound trace ID or creates a new trace
+	// TrustTraceID controls whether the tracer respects inbound trace ID or creates a new trace
 	// and records inbound trace ID as correlation.
 	TrustTraceID bool
 
-	// TrustSampling control whether the actor respects inbound sampling flag or makes its own decision (based on Sample below).
+	// TrustSampling control whether the tracer respects inbound sampling flag or makes its own decision (based on Sample below).
 	TrustSampling bool
 
-	// Sample controls which sampling decision the actor makes when it needs to mame it (e.g when there is no inbound trace context).
+	// Sample controls which sampling decision the tracer makes when it needs to make it (e.g when there is no inbound trace context).
 	Sample bool
 
-	// Upsample controls whether the actor will switch on sampling even if the inbound trace context has sampling=off.
+	// Upsample controls whether the tracer will switch on sampling even if the inbound trace context has sampling=off.
 	Upsample bool
 }

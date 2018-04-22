@@ -7,12 +7,26 @@ import (
 
 // Tracer is a reference implementation of api.Tracer
 type Tracer struct {
-	//
+	config api.TracerConfiguration
 }
 
-// New creates a new Tracer.
+// New creates a new reference Tracer.
 func New() *Tracer {
-	return &Tracer{}
+	config, err := TracerConfigFromEnv()
+	if err != ErrNoConfig {
+		panic(err.Error())
+	}
+	if err == ErrNoConfig {
+		config = DefaultTracerConfiguration
+	}
+	return NewWithConfig(config)
+}
+
+// NewWithConfig creates a new reference Tracer with given configuration.
+func NewWithConfig(config api.TracerConfiguration) *Tracer {
+	return &Tracer{
+		config: config,
+	}
 }
 
 func (t *Tracer) StartSpan(tc api.TraceContext) api.Span {

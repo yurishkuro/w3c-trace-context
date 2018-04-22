@@ -1,4 +1,4 @@
-package actor
+package reftracer
 
 import (
 	"errors"
@@ -17,13 +17,25 @@ const (
 )
 
 var (
-	errNoConfig   = errors.New("no env configuration")
-	errIncomplete = fmt.Errorf("not all env variables are defined: %v", []string{
+	// ErrNoConfig is returned when all env variables were absent.
+	ErrNoConfig = errors.New("no env configuration")
+
+	// ErrIncomplete is returned when some env variables were absent.
+	ErrIncomplete = fmt.Errorf("not all env variables are defined: %v", []string{
 		envTrustTraceID, envTrustSampling, envSample, envUpsample,
 	})
+
+	// DefaultTracerConfiguration is the most common configuration.
+	DefaultTracerConfiguration = api.TracerConfiguration{
+		TrustTraceID:  true,
+		TrustSampling: true,
+		Sample:        true,
+		Upsample:      false,
+	}
 )
 
-func configFromEnv() (api.ActorConfiguration, error) {
+// TracerConfigFromEnv reads TracerConfiguration from environment variables.
+func TracerConfigFromEnv() (api.TracerConfiguration, error) {
 	var (
 		trustTraceID  = os.Getenv(envTrustTraceID)
 		trustSampling = os.Getenv(envTrustSampling)
@@ -31,12 +43,12 @@ func configFromEnv() (api.ActorConfiguration, error) {
 		upsample      = os.Getenv(envUpsample)
 	)
 	if trustTraceID == "" && trustSampling == "" && sample == "" && upsample == "" {
-		return api.ActorConfiguration{}, errNoConfig
+		return api.TracerConfiguration{}, ErrNoConfig
 	}
 	if trustTraceID == "" || trustSampling == "" || sample == "" || upsample == "" {
-		return api.ActorConfiguration{}, errIncomplete
+		return api.TracerConfiguration{}, ErrIncomplete
 	}
-	return api.ActorConfiguration{
+	return api.TracerConfiguration{
 		TrustTraceID:  toBool(trustTraceID),
 		TrustSampling: toBool(trustSampling),
 		Sample:        toBool(sample),
