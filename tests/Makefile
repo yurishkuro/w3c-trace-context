@@ -8,7 +8,6 @@ crossdock-binary:
 
 crossdock: crossdock-binary
 	docker-compose -f $(TESTBED_YAML) kill
-	docker-compose -f $(TESTBED_YAML) rm -f driver
 	docker-compose -f $(TESTBED_YAML) rm -f refnode
 	docker-compose -f $(TESTBED_YAML) run crossdock 2>&1 | tee run-crossdock.log
 	grep 'Tests passed!' run-crossdock.log || (make crossdock-logs; echo TESTS FAILED; false)

@@ -3,6 +3,7 @@ package api
 // Request is sent by the driver to the first Node, and by Nodes to downstream Nodes.
 type Request struct {
 	Actor      string   `json:"actor"`
+	Server     string   `json:"server,omitempty"` // only used in unit tests to override IP address of the actor
 	Downstream *Request `json:"downstream,omitempty"`
 }
 

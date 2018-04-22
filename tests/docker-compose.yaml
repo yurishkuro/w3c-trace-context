@@ -4,15 +4,15 @@ services:
     crossdock:
         image: crossdock/crossdock
         links:
-            - driver
             - refnode
 
         environment:
             - WAIT_FOR_TIMEOUT=2s
             - CALL_TIMEOUT=2s
+            - CLIENTS=refnode
 
             # For real tests add actual tracer implementations here.
-            - WAIT_FOR=driver,refnode
+            - WAIT_FOR=refnode
 
             # For real tests add actual tracer implementations here.
             - AXIS_ACTOR=refnode
@@ -23,11 +23,7 @@ services:
             - BEHAVIOR_TRACE_CONTEXT_DIFF_VENDOR=actor
             - BEHAVIOR_TRACE_CONTEXT_SAME_VENDOR=actor
 
-    driver:
-        build: .
-        ports:
-            - "8080"
-
+    # refnode acts as the test driver ("client" for crossdock) as well as reference implementation of test node.
     refnode:
         build: .
         ports:

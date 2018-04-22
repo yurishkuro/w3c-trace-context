@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"github.com/crossdock/crossdock-go"
-
 	"github.com/w3c/distributed-tracing/tests/driver/behaviors/diffvendor"
 	"github.com/w3c/distributed-tracing/tests/driver/behaviors/malformed"
 	"github.com/w3c/distributed-tracing/tests/driver/behaviors/missing"
@@ -23,5 +22,6 @@ var behaviors = crossdock.Behaviors{
 // Start registers behaviors and begins the Crossdock test driver.
 func Start() {
 	http.Handle("/", crossdock.Handler(behaviors, true))
+	log.Print("starting server on 8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }

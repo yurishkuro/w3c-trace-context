@@ -23,6 +23,7 @@ type behaviorParams struct {
 
 // Execute implements the 'trace-context-diff-vendor' behavior.
 func Execute(t crossdock.T) {
+	log.Printf("executing behavior %s", params.BehaviorTraceContextDiffVendor)
 	fatals := crossdock.Fatals(t)
 	bp := readParams(t)
 	log.Printf("params %+v", bp)
@@ -49,7 +50,8 @@ func Execute(t crossdock.T) {
 		&api.Request{
 			Actor: bp.actor,
 			Downstream: &api.Request{
-				Actor: params.RefActor,
+				Actor:  params.RefActor,
+				Server: server,
 			},
 		},
 		&res,

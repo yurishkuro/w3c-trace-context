@@ -58,12 +58,17 @@ func (a *Actor) callDownstream(dn *api.Request, span api.Span) (*api.Response, e
 	if dn.Actor == "" {
 		return nil, fmt.Errorf("no actor name")
 	}
-	log.Printf("calling downstream %s", dn.Actor)
+	server := dn.Actor
+	if dn.Server != "" {
+		server = dn.Server
+	}
+	url := fmt.Sprintf("http://%s:8081/trace", server)
+	log.Printf("calling downstream %s at %s", dn.Actor, url)
 	tc := span.ToTraceContext()
 	var res api.Response
 	err := xhttp.PostJSON(
 		context.Background(),
-		"http://127.0.0.1:8081/trace", // TODO use target actor host name
+		url,
 		tc.ToRequest,
 		&api.Request{
 			Downstream: dn.Downstream,

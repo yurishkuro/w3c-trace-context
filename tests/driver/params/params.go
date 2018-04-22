@@ -11,7 +11,7 @@ const (
 	Actor = "actor"
 
 	// RefActor is the name of the reference implementation of the actor.
-	RefActor = "ref"
+	RefActor = "refnode"
 
 	// Server parameter is used as an override for the location of the actor.
 	Server = "server"
