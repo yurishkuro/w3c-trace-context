@@ -27,45 +27,57 @@ but can be easily configured to run via docker-compose.
 Driver is a binary that receives request from orchestrator with instructions about a specific test to perform. A sample request looks like this:
 
 ```
-GET http://127.0.0.1:8080?actor1=ref&actor2=ref&behavior=trace&sampled=true
+GET http://127.0.0.1:8080?actor=refnode&behavior=trace_context_diff_vendor
 ```
 
 where:
   * `behavior` is the name of the test to be executed with given parameters (see Behaviors below)
-  * `actor1` is the name of the first Node in the chain of RPC calls (`ref` means use reference implementation)
-  * `actor1` is the name of the second Node in the chain of RPC calls (`ref` means use reference implementation)
-  * `sampled` tells the driver to initiate a trace in sampled state
+  * `actor` is the name of the Node being tested (`refnode` service provide reference implementation)
+
+The driver is implemented by the `refnode` service (see [docker-compose.yaml](./docker-compose.yaml)).
 
 ### Actors
 
 Actors implement Nodes in the test case that exchange RPC requests. To avoid having each vendor re-implement the exact behavior expected of the Node the default implementation is generic enough so that any vendor tracer can be plugged in by implementing the `api.Tracer` interface.
 
+The reference implementation of the actor is implemented by the `refnode` service (see [docker-compose.yaml](./docker-compose.yaml)). It can be configured to run in different participation modes, e.g. the same code is used for service `refnode1` which is configured to not trust the inbound trace ID and always restart the trace.
+
+So far the [Actor module](./actor/)  only implements a single endpoint `/trace`. See Actor struct comments and the [request/response API](./api/). Actors return a response that records the trace/span IDs of the span for that node, and other fields. If request contains an instruction to call another actor, the first actor executes it and embeds the other actor's response into its own response
+
 ## Behaviors
 
-The driver and actors can support different behaviors (types of test). Currently a single behavior `trace` is implemented.
+The driver supports different behaviors (types of test) defined in [driver/behaviors](./driver/behaviors/) package.
 
-### Behavior "Trace"
+### Behavior "malformed_trace_context"
 
-#### Parameters
+Tests how the actor reacts to a malformed trace context headers. Currently not implemented.
 
-* actor1 - name of the first node called by the driver
-* actor2 - name of the second node called by the first node
-* sampled - whether the driver sends a trace context as sampled
+RPC chain: `driver->vendor->refnode`.
 
-#### Driver
+### Behavior "missing_trace_context"
+
+Tests how the actor reacts to missing trace context headers. Currently not implemented.
+
+RPC chain: `driver->vendor->refnode`.
+
+### Behavior "trace_context_diff_vendor"
+
+Tests how the actor reacts to well-formed trace context by different vendors.
+
+RPC chain: `driver->vendor->refnode`.
 
 When executing this test, the driver
 
-* manufactures a new trace and encodes it in Trace-Parent
-* populates Trace-State with fake vendor entries
-* creates a request to actor1 with instructions to call the second actor (by providing its name)
-* upon receiving the response from actor1 validates that both actors observed expected trace context headers with expected causal relationships between spans
+* manufactures a new trace and encodes it in Trace-Parent;
+* populates Trace-State with fake vendor entries;
+* creates a request to the `actor` service with instructions to call the second `refnode` actor, which can record outbound trace context;
+* upon receiving the response from the main actor validates that both actors observed expected trace context headers with expected causal relationships between spans.
 
-#### Actors
+### Behavior "trace_context_diff_vendor"
 
-* Actors implement `/trace` endpoint
-* They return a response that records the trace/span IDs of the span for that node, and other fields
-* If request contains an instruction to call another actor, the first actor executes it and embeds the other actor's response into its own response
+Tests how the actor reacts to well-formed trace context from the same vendor. Currently not implemented.
+
+RPC chain: `driver->vendor->vendor->refnode` (because the driver would not know how to prepare the first trace context with the correct vendor key).
 
 ## TODO
 
