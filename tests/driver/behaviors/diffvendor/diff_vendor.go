@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"strings"
 
 	crossdock "github.com/crossdock/crossdock-go"
 	"github.com/w3c/distributed-tracing/tests/api"
@@ -51,7 +52,7 @@ func Execute(t crossdock.T) {
 			Actor: bp.actor,
 			Downstream: &api.Request{
 				Actor:  params.RefActor,
-				Server: server,
+				Server: bp.server,
 			},
 		},
 		&res,
@@ -62,18 +63,29 @@ func Execute(t crossdock.T) {
 	}
 
 	assert := crossdock.Assert(t)
-	assert.Equal(traceID, res.Trace.TraceID, "same trace ID")
-	assert.NotEmpty(res.Trace.SpanID)
-	assert.Equal(spanID, res.Trace.ParentSpanID)
-	assert.Equal(true, res.Trace.Sampled)
-	assert.Equal(tc.TraceParent, res.Trace.TraceParent)
-	assert.Equal(tc.TraceState, res.Trace.TraceState)
+	if res.TracerConfig.TrustTraceID {
+		assert.Equal(traceID, res.Trace.TraceID, "same trace ID")
+	} else {
+		assert.NotEqual(traceID, res.Trace.TraceID, "different trace ID")
+		assert.Equal(traceID, res.Trace.CorrelationID, "trace ID is in correlationID")
+	}
+	assert.NotEmpty(res.Trace.SpanID, "spanID is not empty")
+	assert.Equal(spanID, res.Trace.ParentSpanID, "ParentSpanID equal root spanID")
+	assert.Equal(true, res.Trace.Sampled, "span is sampled")
 
-	fatals.NotNil(res.Downstream)
-	assert.Equal(traceID, res.Downstream.Trace.TraceID)
-	assert.Equal(res.Trace.SpanID, res.Downstream.Trace.ParentSpanID)
-	assert.Equal(true, res.Downstream.Trace.Sampled)
-	assert.Equal(tc.TraceState, res.Downstream.Trace.TraceState)
+	fatals.NotNil(res.Downstream, "downstream response not empty")
+	if res.TracerConfig.TrustTraceID {
+		assert.Equal(traceID, res.Downstream.Trace.TraceID, "same downstream traceID")
+	} else {
+		assert.Equal(res.Trace.TraceID, res.Downstream.Trace.TraceID, "downstream traceID equal 1st actor's traceID")
+	}
+	assert.Equal(true, res.Downstream.Trace.Sampled, "downstream span is sampled")
+	// validate vendor key in the 1st position
+	assert.NotEqual(tc.TraceState, res.Downstream.Trace.TraceState, "modified tracestate")
+	assert.NotEmpty(res.TracerConfig.VendorKey, "non-empty vendor key")
+	vendorParts := strings.Split(res.Downstream.Trace.TraceState, ",")
+	firstParts := strings.Split(vendorParts[0], "=")
+	assert.Equal(res.TracerConfig.VendorKey, firstParts[0], "vendor key '%s' in the first position", res.TracerConfig.VendorKey)
 }
 
 func readParams(t crossdock.T) behaviorParams {

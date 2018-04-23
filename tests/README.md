@@ -87,21 +87,6 @@ When executing this test, the driver
       * Node keeps no sampling
       * Node up-samples
 
-Node parameters:
-  * TRUST_TRACE_ID = true/false
-  * TRUST_SAMPLING = true/false
-  * SAMPLE = true/false (when no inbound trace context)
-  * UPSAMPLE = true/false (when inbound trace context is not sampled)
-
-How does the driver know about Node's parameters?
-  * Make the Node return them in the response
-  * Pass parameters to the driver (requires too many compose files)
-
-
+* Implement checks in the behaviors depending on the tracer configuration.
 * Use a real tracer that supports Trace Context semantics to implement the `api.Trace` and create another actor
-* Define docker-compose file that can pull different types of actors into one test suite
-* Decide how different participation modes should be modelled
-  * Option 1 - as different behaviors. Downside of that is it requires a separate endpoint in each actor, although most of the code is similar
-  * Option 2 - as additional parameters of the `trace` behavior. For example:
-    * `actor1_participation = pass-through | join | correlate`
-    * `actor1_participation = pass-through | join | correlate`
+* Perhaps merge "actor" and "node" into a single term.

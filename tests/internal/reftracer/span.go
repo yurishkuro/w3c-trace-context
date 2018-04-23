@@ -29,6 +29,6 @@ func (s *Span) ToTraceContext() api.TraceContext {
 	}
 	return api.TraceContext{
 		TraceParent: fmt.Sprintf("00-%s-%s-%s", s.traceID, s.spanID, sampled),
-		TraceState:  s.traceState, // TODO encode own vendor position
+		TraceState:  fmt.Sprintf("ref=here,%s", s.traceState), // TODO this prepends vendor key but does not check if it exists already
 	}
 }

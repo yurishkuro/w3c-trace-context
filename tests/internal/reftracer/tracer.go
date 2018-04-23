@@ -1,6 +1,8 @@
 package reftracer
 
 import (
+	"log"
+
 	"github.com/w3c/distributed-tracing/tests/api"
 	"github.com/w3c/distributed-tracing/tests/internal/random"
 )
@@ -12,9 +14,9 @@ type Tracer struct {
 
 // New creates a new reference Tracer.
 func New() *Tracer {
-	config, err := TracerConfigFromEnv()
-	if err == ErrNoConfig {
-		config = DefaultTracerConfiguration
+	config, err := api.TracerConfigFromEnv()
+	if err == api.ErrNoConfig {
+		config = api.DefaultTracerConfiguration
 	} else if err != nil {
 		panic(err.Error())
 	}
@@ -23,26 +25,41 @@ func New() *Tracer {
 
 // NewWithConfig creates a new reference Tracer with given configuration.
 func NewWithConfig(config api.TracerConfiguration) *Tracer {
+	cfg := config // copy
+	cfg.VendorKey = "ref"
 	return &Tracer{
-		config: config,
+		config: cfg,
 	}
 }
 
 // StartSpan implements Tracer API.
 func (t *Tracer) StartSpan(tc api.TraceContext) api.Span {
 	// TODO tc.TraceState should take priority
-	traceID, parentSpanID, sampled, err := tc.ParseTraceParent()
+	traceID, parentSpanID, sampled, _ := tc.ParseTraceParent()
+	correlationID := ""
 	if traceID == "" {
 		traceID = random.New64BitID() + random.New64BitID()
-	}
-	if err != nil {
-		sampled = true // TODO how should this be decided? read from Request?
+		sampled = t.config.Sample
+	} else {
+		if !t.config.TrustTraceID {
+			correlationID = traceID
+			log.Printf("captured correlationID=%s", correlationID)
+			traceID = random.New64BitID() + random.New64BitID()
+			log.Printf("restarting trace with traceID=%s", traceID)
+		}
+		if !t.config.TrustSampling {
+			sampled = t.config.Sample
+		} else {
+			if !sampled && t.config.Upsample {
+				sampled = t.config.Sample
+			}
+		}
 	}
 	return &Span{
 		traceID:       traceID,
 		spanID:        random.New64BitID(),
 		parentSpanID:  parentSpanID,
-		correlationID: "", // TODO should depend on the participation mode
+		correlationID: correlationID, // TODO should depend on the participation mode
 		sampled:       sampled,
 		traceState:    tc.TraceState,
 	}

@@ -1,30 +1,36 @@
 package main
 
 import (
+	"fmt"
 	"net/url"
 	"testing"
 
+	"github.com/w3c/distributed-tracing/tests/driver/params"
+
 	crossdock "github.com/crossdock/crossdock-go"
 	"github.com/w3c/distributed-tracing/tests/actor"
+	"github.com/w3c/distributed-tracing/tests/api"
 	"github.com/w3c/distributed-tracing/tests/driver"
 	driverParams "github.com/w3c/distributed-tracing/tests/driver/params"
 	"github.com/w3c/distributed-tracing/tests/internal/reftracer"
 )
 
-const clientURL = "http://127.0.0.1:8080"
-
 func TestCrossdock(t *testing.T) {
-	actor := actor.New(reftracer.New())
+	tracerConfig := api.DefaultTracerConfiguration
+	tracerConfig.ActorName = params.RefActor
+	actor := actor.New(reftracer.NewWithConfig(tracerConfig))
 	actor.Start()
 	defer actor.Stop()
 	go driver.Start()
 
-	crossdock.Wait(t, clientURL, 10)
+	const driverIP = "127.0.0.1"
+	driverURL := fmt.Sprintf("http://%s:8080", driverIP)
+	crossdock.Wait(t, driverURL, 10)
 
 	type params map[string]string
 	type axes map[string][]string
 
-	defaultParams := params{"server": "127.0.0.1"}
+	defaultParams := params{"server": driverIP}
 
 	behaviors := []struct {
 		name   string
@@ -72,7 +78,7 @@ func TestCrossdock(t *testing.T) {
 			}
 
 			if len(bb.axes) == 0 {
-				crossdock.Call(t, clientURL, bb.name, args)
+				crossdock.Call(t, driverURL, bb.name, args)
 				return
 			}
 
@@ -85,7 +91,7 @@ func TestCrossdock(t *testing.T) {
 					entryArgs.Set(k, v)
 				}
 
-				crossdock.Call(t, clientURL, bb.name, entryArgs)
+				crossdock.Call(t, driverURL, bb.name, entryArgs)
 			}
 		})
 	}

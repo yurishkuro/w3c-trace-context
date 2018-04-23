@@ -20,25 +20,7 @@ type ObservedTrace struct {
 	SpanID        string `json:"span_id,omitempty"`
 	ParentSpanID  string `json:"parent_id,omitempty"`
 	Sampled       bool   `json:"sampled,omitempty"`
-	CorrelationID string `json:"correlation_id,omitempty"`
+	CorrelationID string `json:"correlation_id,omitempty"` // TODO should this contain the full traceparent header?
 	TraceParent   string `json:"trace_parent,omitempty"`
 	TraceState    string `json:"trace_state,omitempty"`
-}
-
-// TracerConfiguration describes how the actor's tracer is going to behave under different conditions.
-type TracerConfiguration struct {
-	ActorName string
-
-	// TrustTraceID controls whether the tracer respects inbound trace ID or creates a new trace
-	// and records inbound trace ID as correlation.
-	TrustTraceID bool
-
-	// TrustSampling control whether the tracer respects inbound sampling flag or makes its own decision (based on Sample below).
-	TrustSampling bool
-
-	// Sample controls which sampling decision the tracer makes when it needs to make it (e.g when there is no inbound trace context).
-	Sample bool
-
-	// Upsample controls whether the tracer will switch on sampling even if the inbound trace context has sampling=off.
-	Upsample bool
 }

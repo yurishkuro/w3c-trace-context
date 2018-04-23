@@ -1,12 +1,10 @@
-package reftracer
+package api
 
 import (
 	"errors"
 	"fmt"
 	"os"
 	"strconv"
-
-	"github.com/w3c/distributed-tracing/tests/api"
 )
 
 const (
@@ -27,7 +25,7 @@ var (
 	})
 
 	// DefaultTracerConfiguration is the most common configuration.
-	DefaultTracerConfiguration = api.TracerConfiguration{
+	DefaultTracerConfiguration = TracerConfiguration{
 		ActorName:     "undefined",
 		TrustTraceID:  true,
 		TrustSampling: true,
@@ -36,8 +34,27 @@ var (
 	}
 )
 
+// TracerConfiguration describes how the actor's tracer is going to behave under different conditions.
+type TracerConfiguration struct {
+	ActorName string
+	VendorKey string
+
+	// TrustTraceID controls whether the tracer respects inbound trace ID or creates a new trace
+	// and records inbound trace ID as correlation.
+	TrustTraceID bool
+
+	// TrustSampling control whether the tracer respects inbound sampling flag or makes its own decision (based on Sample below).
+	TrustSampling bool
+
+	// Sample controls which sampling decision the tracer makes when it needs to make it (e.g when there is no inbound trace context).
+	Sample bool
+
+	// Upsample controls whether the tracer will switch on sampling even if the inbound trace context has sampling=off.
+	Upsample bool
+}
+
 // TracerConfigFromEnv reads TracerConfiguration from environment variables.
-func TracerConfigFromEnv() (api.TracerConfiguration, error) {
+func TracerConfigFromEnv() (TracerConfiguration, error) {
 	var (
 		actorName     = os.Getenv(envActorName)
 		trustTraceID  = os.Getenv(envTrustTraceID)
@@ -46,24 +63,25 @@ func TracerConfigFromEnv() (api.TracerConfiguration, error) {
 		upsample      = os.Getenv(envUpsample)
 	)
 	if actorName == "" && trustTraceID == "" && trustSampling == "" && sample == "" && upsample == "" {
-		return api.TracerConfiguration{}, ErrNoConfig
+		return TracerConfiguration{}, ErrNoConfig
 	}
 	if actorName == "" || trustTraceID == "" || trustSampling == "" || sample == "" || upsample == "" {
-		return api.TracerConfiguration{}, ErrIncomplete
+		return TracerConfiguration{}, ErrIncomplete
 	}
-	return api.TracerConfiguration{
+
+	toBool := func(v string) bool {
+		b, err := strconv.ParseBool(v)
+		if err != nil {
+			panic("Cannot parse value as boolean: " + err.Error())
+		}
+		return b
+	}
+
+	return TracerConfiguration{
 		ActorName:     actorName,
 		TrustTraceID:  toBool(trustTraceID),
 		TrustSampling: toBool(trustSampling),
 		Sample:        toBool(sample),
 		Upsample:      toBool(upsample),
 	}, nil
-}
-
-func toBool(v string) bool {
-	b, err := strconv.ParseBool(v)
-	if err != nil {
-		panic("Cannot parse value as boolean: " + err.Error())
-	}
-	return b
 }
