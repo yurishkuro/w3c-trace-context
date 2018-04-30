@@ -1,4 +1,4 @@
-# Compatibility Test-bed
+# Compatibility Test Suite
 
 This module contains a test harness that can be used to verify a given tracer's compliance and compatibility with the spec.
 
@@ -13,14 +13,13 @@ This module contains a test harness that can be used to verify a given tracer's 
   * `cd distributed-tracing`
   * `git checkout compliance-tests`
 * Run unit tests: `make test`
-* Run actual test bed: `make crossdock`
+* Run actual test suite: `make crossdock`
 
-## Test-bed Components
+## Test Suite Components
 
 ### Orchestrator
 
-The Crossdock framework is used as orchestrator. At the moment it's implemented only in the unit tests `main_test.go`,
-but can be easily configured to run via docker-compose.
+The Crossdock framework is used as orchestrator. It is invoked from the [docker-compose](./docker-compose.yaml) file.
 
 ### Driver
 
@@ -78,6 +77,15 @@ When executing this test, the driver
 Tests how the actor reacts to well-formed trace context from the same vendor. Currently not implemented.
 
 RPC chain: `driver->vendor->vendor->refnode` (because the driver would not know how to prepare the first trace context with the correct vendor key).
+
+## How to test vendor-specific implementation for Trace-Context compatibility.
+
+The [docker-compose.yaml](./docker-compose.yaml) file uses `example1` container as a substitute for a vendor-provided container. The basic steps for a vendor are the following (Go only, for now):
+  * implement `api.Tracer` interface
+  * create a binary similar to [example/main.go](./example/main.go) that uses default Actor implementation with its own Tracer
+  * create a Docker image from the binary (see [example/Dockerfile](./example/Dockerfile))
+  * update the main [docker-compose.yaml](./docker-compose.yaml) file to run the new image as a service, similar to `example1`
+    * the container can be used multiple times with different environment variables, similar to `refnode` and `refnode1`
 
 ## TODO
 
