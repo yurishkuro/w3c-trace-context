@@ -9,9 +9,10 @@ This module contains a test harness that can be used to verify a given tracer's 
 * Clone this repo to `$GOPATH/src/github.com/w3c/distributed-tracing/`;
   * `mkdir -p $GOPATH/src/github.com/w3c/`
   * `cd $GOPATH/src/github.com/w3c/`
-  * `git clone git@github.com:yurishkuro/distributed-tracing.git`
+  * `git clone https://github.com/yurishkuro/distributed-tracing.git`
   * `cd distributed-tracing`
   * `git checkout compliance-tests`
+  * `cd tests`
 * Run unit tests: `make test`
 * Run actual test suite: `make crossdock`
 
@@ -83,6 +84,7 @@ RPC chain: `driver->vendor->vendor->refnode` (because the driver would not know 
 The [docker-compose.yaml](./docker-compose.yaml) file uses `example1` container as a substitute for a vendor-provided container. The basic steps for a vendor are the following (Go only, for now):
   * implement `api.Tracer` interface
   * create a binary similar to [example/main.go](./example/main.go) that uses default Actor implementation with its own Tracer
+    * consider adding the new binary to the [Makefile](./Makefile)
   * create a Docker image from the binary (see [example/Dockerfile](./example/Dockerfile))
   * update the main [docker-compose.yaml](./docker-compose.yaml) file to run the new image as a service, similar to `example1`
     * the container can be used multiple times with different environment variables, similar to `refnode` and `refnode1`

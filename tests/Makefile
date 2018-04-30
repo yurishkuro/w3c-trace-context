@@ -9,12 +9,12 @@ crossdock-binary:
 example-binary:
 	GOOS=linux CGO_ENABLED=0 installsuffix=cgo go build -o ./example/example-linux ./example/main.go
 
-crossdock: crossdock-binary
+crossdock: crossdock-binary example-binary
 	docker-compose -f $(TESTBED_YAML) kill
 	docker-compose -f $(TESTBED_YAML) rm -f refnode
 	$(MAKE) crossdock-run
 
-crossdock-fresh: crossdock-binary
+crossdock-fresh: crossdock-binary example-binary
 	docker-compose -f $(TESTBED_YAML) kill
 	docker-compose -f $(TESTBED_YAML) rm --force
 	docker-compose -f $(TESTBED_YAML) pull
