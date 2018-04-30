@@ -87,6 +87,8 @@ The [docker-compose.yaml](./docker-compose.yaml) file uses `example1` container 
   * update the main [docker-compose.yaml](./docker-compose.yaml) file to run the new image as a service, similar to `example1`
     * the container can be used multiple times with different environment variables, similar to `refnode` and `refnode1`
 
+To test implementations in other languages, this test suite needs to implement a reusable Actor, so that vendors would only need to provide the `Tracer` implementation.
+
 ## TODO
 
 ### Dimensions of the individual tests
