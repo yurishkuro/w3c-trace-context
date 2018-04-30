@@ -6,19 +6,20 @@ services:
         links:
             - refnode
             - refnode1
+            - example1
 
         environment:
             - WAIT_FOR_TIMEOUT=2s
             - CALL_TIMEOUT=2s
 
-            # For real tests add actual tracer implementations here.
-            - WAIT_FOR=refnode,refnode1
+            # For real tests add actual tracer implementations here, e.g. example1.
+            - WAIT_FOR=refnode,refnode1,example1
 
             # First axis of every behavior is the name of the driver node (this should never change).
             - AXIS_DRIVER=refnode
 
-            # For real tests add actual tracer implementations here.
-            - AXIS_ACTOR=refnode,refnode1
+            # For real tests add actual tracer implementations here, e.g. example1.
+            - AXIS_ACTOR=refnode,refnode1,example1
 
             # Behaviors are executed in alphabetical order, so keep them sorted here too.
             - BEHAVIOR_MALFORMED_TRACE_CONTEXT=driver,actor
@@ -46,6 +47,18 @@ services:
         environment:
             - ACTOR_NAME=refnode1
             - TRUST_TRACE_ID=false
+            - TRUST_SAMPLING=true
+            - SAMPLE=true
+            - UPSAMPLE=false
+
+    # example1 shows how to use vendor-implemented actor
+    example1:
+        build: ./example/
+        ports:
+            - "8080-8081"
+        environment:
+            - ACTOR_NAME=example1
+            - TRUST_TRACE_ID=true
             - TRUST_SAMPLING=true
             - SAMPLE=true
             - UPSAMPLE=false
