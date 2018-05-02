@@ -9,12 +9,14 @@ crossdock-binary:
 example-binary:
 	GOOS=linux CGO_ENABLED=0 installsuffix=cgo go build -o ./example/example-linux ./example/main.go
 
-crossdock: crossdock-binary
+binaries: crossdock-binary example-binary
+
+crossdock: binaries
 	docker-compose -f $(TESTBED_YAML) kill
 	docker-compose -f $(TESTBED_YAML) rm -f refnode
 	$(MAKE) crossdock-run
 
-crossdock-fresh: crossdock-binary
+crossdock-fresh: binaries
 	docker-compose -f $(TESTBED_YAML) kill
 	docker-compose -f $(TESTBED_YAML) rm --force
 	docker-compose -f $(TESTBED_YAML) pull
@@ -31,4 +33,4 @@ crossdock-logs:
 crossdock-clean:
 	docker-compose -f $(TESTBED_YAML) down
 
-.PHONY: crossdock crossdock-binary crossdock-fresh crossdock-logs crossdock-clean crossdock-run
+.PHONY: crossdock binaries crossdock-binary example-binary crossdock-fresh crossdock-logs crossdock-clean crossdock-run

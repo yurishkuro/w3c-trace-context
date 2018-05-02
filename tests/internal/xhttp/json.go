@@ -26,7 +26,7 @@ func PostJSON(ctx context.Context, url string, decorate func(*http.Request), in,
 		decorate(r)
 	}
 
-	log.Printf("PUT %s %s", url, string(jsonBytes))
+	log.Printf("POST %s %s", url, string(jsonBytes))
 	r = r.WithContext(ctx)
 	resp, err := http.DefaultClient.Do(r)
 	if err != nil {

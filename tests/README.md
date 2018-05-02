@@ -89,6 +89,87 @@ The [docker-compose.yaml](./docker-compose.yaml) file uses `example1` container 
 
 To test implementations in other languages, this test suite needs to implement a reusable Actor, so that vendors would only need to provide the `Tracer` implementation.
 
+Another alternative is to implement Actor completely independently, perhaps using vendor's own instrumentation, using the spec below.
+
+## Actor Specification
+
+The exact data types are defined in [api/actor.go](./api/actor.go).
+
+### Incoming Requests
+
+The first actor in the chain usually receives `HTTP POST http://actor-name:8081/trace` with JSON payload that looks like this:
+
+```
+{
+  "actor": "actor-name",
+  "downstream": {
+    "actor": "next-actor-name"
+  }
+}
+```
+
+### Downstream Requests
+
+The `downstream` portion is optional, if present the actor is expected to call the next actor and pass it just that downstream portion, i.e. in this case `HTTP POST http://next-actor-name:8081/trace` with JSON payload 
+
+```
+{
+  "actor":"next-actor-name"
+}
+```
+
+### Response
+
+The response contains three parts:
+  1. the description of the server-side span created by the actor
+  1. the description of actor's configuration parameters that explain its behavior
+  1. if request had the `downstream` section, the response must include the response from the downstream actor.
+
+Below is an example of the top-level actor's response:
+
+```
+{
+  "tracer_config": {
+    "ActorName": "actor-name",
+    "VendorKey": "someKey",
+    "TrustTraceID": true,
+    "TrustSampling": true,
+    "Sample": true,
+    "Upsample": false
+  },
+  "trace": {
+    "trace_id": "999ed0ff376053d0ce00566d456e9c80",
+    "span_id": "87f1df57ec17c593",
+    "parent_id": "005ba7afcb2da550",
+    "sampled": true,
+    "trace_parent": "00-999ed0ff376053d0ce00566d456e9c80-005ba7afcb2da550-01",
+    "trace_state": "vnd1=abcd,vnd2=xyz"
+  },
+  "downstream": {
+    "tracer_config": {
+      "ActorName": "next-actor-name",
+      "VendorKey": "ref",
+      "TrustTraceID": true,
+      "TrustSampling": true,
+      "Sample": true,
+      "Upsample": false
+    },
+    "trace": {
+      "trace_id": "999ed0ff376053d0ce00566d456e9c80",
+      "span_id": "4052ee7a3c350ee7",
+      "parent_id": "87f1df57ec17c593",
+      "sampled": true,
+      "trace_parent": "00-999ed0ff376053d0ce00566d456e9c80-87f1df57ec17c593-01",
+      "trace_state": "someKey=here,vnd1=abcd,vnd2=xyz"
+    }
+  }
+}
+```
+
+### Configuration
+
+Actors are expected to be configurable via env variables w.r.t. how they behave and participate in the trace. See `TracerConfiguration` struct definition in [api/tracer_config.go](./api/tracer_config.go). The default actor implementation supports environment variables defined at the top of that file.
+
 ## TODO
 
 ### Dimensions of the individual tests

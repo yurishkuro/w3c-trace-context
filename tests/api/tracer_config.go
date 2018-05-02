@@ -37,6 +37,8 @@ var (
 // TracerConfiguration describes how the actor's tracer is going to behave under different conditions.
 type TracerConfiguration struct {
 	ActorName string
+
+	// String key that this actor is using to represent its state in the `tracestate` header.
 	VendorKey string
 
 	// TrustTraceID controls whether the tracer respects inbound trace ID or creates a new trace
