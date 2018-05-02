@@ -73,6 +73,7 @@ func Execute(t crossdock.T) {
 	assert.Equal(spanID, res.Trace.ParentSpanID, "ParentSpanID equal root spanID")
 	assert.Equal(true, res.Trace.Sampled, "span is sampled")
 
+	// downstream validation
 	fatals.NotNil(res.Downstream, "downstream response not empty")
 	if res.TracerConfig.TrustTraceID {
 		assert.Equal(traceID, res.Downstream.Trace.TraceID, "same downstream traceID")

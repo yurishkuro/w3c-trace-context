@@ -82,7 +82,7 @@ func (a *Actor) callDownstream(dn *api.Request, span api.Span) (*api.Response, e
 	err := xhttp.PostJSON(
 		context.Background(),
 		url,
-		tc.ToRequest,
+		tc.ToRequest, // headers
 		&api.Request{
 			Actor:      dn.Actor,      // for sanity checks
 			Server:     server,        // for unit tests
